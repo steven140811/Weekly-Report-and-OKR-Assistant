@@ -4,6 +4,8 @@
 
 An intelligent assistant to help you generate weekly reports and manage OKRs (Objectives and Key Results) efficiently.
 
+> **Note**: This project is currently in the planning/documentation phase. The deployment instructions below serve as guidelines for when the implementation is complete.
+
 ## 📋 Features
 
 - **Automated Weekly Report Generation**: Automatically generate comprehensive weekly reports based on your work logs
@@ -13,6 +15,8 @@ An intelligent assistant to help you generate weekly reports and manage OKRs (Ob
 - **Export Options**: Export reports in multiple formats (PDF, Markdown, etc.)
 
 ## 🚀 One-Click Deployment
+
+> **Note**: The following deployment methods will be available once the project implementation is complete. These instructions serve as a comprehensive guide for future deployment.
 
 ### Prerequisites
 
@@ -113,6 +117,8 @@ docker run -p 3000:3000 weekly-report-okr
 5. Update status regularly
 
 ## 🛠️ Technology Stack
+
+*Note: The specific technologies will be determined during implementation. Suggested options include:*
 
 - **Frontend**: React / Vue.js / Next.js
 - **Backend**: Node.js / Python
