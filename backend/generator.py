@@ -15,9 +15,42 @@ from prompts import (
     get_okr_user_prompt
 )
 from config import Config
+import re
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def clean_weekly_report_format(report: str) -> str:
+    """
+    Clean up the weekly report format by removing unnecessary numbering.
+    Remove patterns like "1.", "2.", "3.", "4.", "5." at the beginning of lines.
+    
+    Args:
+        report: Raw report text from LLM
+        
+    Returns:
+        Cleaned report text
+    """
+    lines = report.split('\n')
+    cleaned_lines = []
+    
+    for line in lines:
+        # Remove leading number patterns like "1.", "2.", etc. only at the very start of the line
+        # But preserve them within the section titles like "1、手上项目"
+        stripped = line.lstrip()
+        
+        # Check if line starts with a number followed by a dot and space (e.g., "1. ")
+        # This pattern indicates a list item we want to remove
+        if re.match(r'^\d+\.\s+', stripped):
+            # Remove the "1. " pattern
+            cleaned = re.sub(r'^\d+\.\s+', '', stripped)
+            cleaned_lines.append(cleaned)
+        else:
+            # Keep the line as is (preserving original indentation intent)
+            cleaned_lines.append(line)
+    
+    return '\n'.join(cleaned_lines)
 
 
 def generate_weekly_report(daily_content: str, use_mock: bool = False) -> Dict:
@@ -60,6 +93,9 @@ def generate_weekly_report(daily_content: str, use_mock: bool = False) -> Dict:
         
         # Call LLM
         report = llm_client.call(user_prompt, system_prompt)
+        
+        # Clean up the report format
+        report = clean_weekly_report_format(report)
         
         return {
             'success': True,

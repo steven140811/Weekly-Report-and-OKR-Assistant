@@ -192,7 +192,53 @@ Project Link: [https://github.com/steven140811/Weekly-Report-and-OKR-Assistant](
 
 ## 快速开始
 
-### 方式一：Docker Compose（推荐）
+### 方式一：一键启动脚本（推荐 Windows 用户）
+
+**Windows 用户最简单的方式：**
+
+1. 克隆项目并安装依赖
+```bash
+git clone https://github.com/steven140811/Weekly-Report-and-OKR-Assistant.git
+cd Weekly-Report-and-OKR-Assistant
+
+# 安装后端依赖
+cd backend
+pip install -r requirements.txt
+
+# 安装前端依赖
+cd ../frontend
+npm install
+cd ..
+```
+
+2. 配置环境变量
+```bash
+# 编辑 backend\.env 文件，填入 LLM API 配置
+# 如果不配置，将使用模拟模式
+```
+
+3. 一键启动所有服务
+```bash
+# 双击运行或在命令行执行
+start_services.bat
+
+# 停止服务
+stop_services.bat
+```
+
+**特性：**
+- ✅ 自动检测并释放端口冲突
+- ✅ 后端使用 `pythonw.exe` 完全后台运行（无窗口）
+- ✅ 前端后台运行
+- ✅ 自动打开浏览器
+- ✅ 日志输出到文件：`backend\backend.log` 和 `frontend\frontend.log`
+- ✅ 启动脚本退出后服务继续运行
+
+4. 访问应用
+- 前端: http://localhost:5002
+- 后端 API: http://localhost:5001
+
+### 方式二：Docker Compose
 
 1. 克隆项目
 ```bash
@@ -215,7 +261,7 @@ docker-compose up -d
 - 前端: http://localhost:3000
 - 后端 API: http://localhost:5000
 
-### 方式二：手动部署
+### 方式三：手动部署
 
 #### 后端
 
@@ -286,14 +332,32 @@ Content-Type: application/json
 
 ## 配置说明
 
+### 环境变量
+
 | 环境变量 | 说明 | 默认值 |
 |---------|------|--------|
 | LLM_API_URL | LLM API 地址 | - |
 | LLM_API_KEY | LLM API 密钥 | - |
 | LLM_MODEL | LLM 模型名称 | default/deepseek-v3-2 |
-| LLM_TIMEOUT | API 超时时间(秒) | 30 |
-| LLM_RETRY | 重试次数 | 2 |
+| LLM_TIMEOUT | API 超时时间(秒) | 120 |
+| LLM_RETRY | 重试次数 | 3 |
 | MAX_INPUT_CHARS | 最大输入字符数 | 20000（冻结） |
+| PORT | 后端端口 | 5001（脚本启动）/ 5000（Docker） |
+
+### 端口配置
+
+- **脚本启动方式**：
+  - 后端：5001
+  - 前端：5002
+  
+- **Docker 启动方式**：
+  - 后端：5000
+  - 前端：3000
+
+### 配置文件位置
+
+- 后端配置：`backend\.env`
+- 前端配置：`frontend\.env`（可选）
 
 ## 周报输出格式
 
@@ -324,6 +388,8 @@ Content-Type: application/json
 - ...
 ```
 
+**注意**：系统会自动清理 LLM 可能生成的多余序号，确保输出格式统一。
+
 ## OKR 输出格式
 
 ```
@@ -345,6 +411,22 @@ KR1：M1阶段(日期前)...；M2阶段(日期前)...；M3阶段(日期前)...�
 cd backend
 python -m pytest tests/ -v
 ```
+
+### 脚本说明
+
+- **`start_services.bat`**：Windows 一键启动脚本
+  - 自动检测端口占用
+  - 使用 `pythonw.exe` 后台启动后端（无窗口）
+  - 后台启动前端
+  - 自动打开浏览器
+  
+- **`stop_services.bat`**：Windows 一键停止脚本
+  - 停止所有相关服务
+  - 清理残留进程
+
+- **`start_backend.bat`**：单独启动后端
+- **`QUICK_START.md`**：详细使用指南
+- **`使用说明.txt`**：快速参考
 
 ### 项目结构
 
