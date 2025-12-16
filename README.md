@@ -1,4 +1,3 @@
-<<<<<<< copilot/add-chinese-readme
 # Weekly Report and OKR Assistant
 
 [中文文档](README_CN.md) | English
@@ -368,3 +367,4 @@ python -m pytest tests/ -v
 ├── docker-compose.yml
 └── README.md
 ```
+
