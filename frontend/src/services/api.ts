@@ -297,6 +297,20 @@ class ApiService {
     return response.json();
   }
 
+  async updateOKRReport(creationDate: string, content: string): Promise<ApiResponse<null>> {
+    const response = await fetch(`${this.baseUrl}/api/okr-reports`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        creation_date: creationDate,
+        content,
+      }),
+    });
+    return response.json();
+  }
+
   // ========================
   // TODO Items API
   // ========================
