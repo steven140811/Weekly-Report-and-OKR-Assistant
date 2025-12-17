@@ -201,15 +201,45 @@ Weekly-Report-and-OKR-Assistant/
 
 ## 🔧 Environment Variables Configuration
 
-In `backend/.env` file:
+Configure LLM-related parameters in the `backend/.env` file. You can refer to the `.env.example` file in the project root directory for configuration.
+
+**Configuration Example:**
 
 ```bash
-LLM_PROVIDER=deepseek          # LLM provider
-LLM_API_KEY=your_api_key       # API key
-LLM_MODEL_NAME=deepseek-chat   # Model name
-LLM_BASE_URL=https://api.deepseek.com/v1  # API address
-LLM_TIMEOUT=60                 # Timeout in seconds
+# LLM Configuration (Required for real LLM calls)
+# If not configured, the application will use mock mode
+LLM_API_URL=https://api.deepseek.com/v1    # LLM API URL
+LLM_API_KEY=sk-your-api-key-here           # Your API key
+LLM_MODEL=deepseek-chat                     # Model name
+
+# Optional: LLM timeout and retry settings
+LLM_TIMEOUT=30                              # Timeout in seconds, default 30
+LLM_RETRY=2                                 # Retry count, default 2
+
+# Flask Configuration
+PORT=5001                                   # Backend service port
+FLASK_DEBUG=false                           # Debug mode switch
 ```
+
+**Configuration Steps:**
+
+1. Copy the example configuration file:
+   ```bash
+   cp .env.example backend/.env
+   ```
+
+2. Edit the `backend/.env` file and fill in your LLM API configuration
+   - `LLM_API_URL`: API address of the LLM service
+   - `LLM_API_KEY`: Your API key (required)
+   - `LLM_MODEL`: Model name to use
+
+3. If LLM is not configured, the application will run in mock mode (returning test data)
+
+**Supported LLM Providers:**
+- DeepSeek: `https://api.deepseek.com/v1`
+- OpenAI: `https://api.openai.com/v1`
+- Azure OpenAI: `https://your-resource.openai.azure.com/`
+- Other services compatible with OpenAI API format
 
 ## 📝 License
 
