@@ -153,7 +153,16 @@ const WeeklyReportGenerator: React.FC = () => {
     setSaveMessage(null);
 
     try {
-      const response = await apiService.generateWeeklyReport(dailyContent);
+      // Use imported date range if available, otherwise use current week range
+      const startDate = importedStartDate || weekRange?.monday;
+      const endDate = importedEndDate || weekRange?.friday;
+      
+      const response = await apiService.generateWeeklyReport(
+        dailyContent, 
+        false, 
+        startDate, 
+        endDate
+      );
       setResult(response);
       if (!response.success) {
         setError(response.error || '生成失败');

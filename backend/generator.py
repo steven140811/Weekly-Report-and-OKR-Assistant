@@ -20,13 +20,20 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def generate_weekly_report(daily_content: str, use_mock: bool = False) -> Dict:
+def generate_weekly_report(
+    daily_content: str, 
+    use_mock: bool = False,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None
+) -> Dict:
     """
     Generate weekly report from daily report content.
     
     Args:
         daily_content: Raw daily report text
         use_mock: Whether to use mock LLM client
+        start_date: Optional start date (YYYY-MM-DD format)
+        end_date: Optional end date (YYYY-MM-DD format)
         
     Returns:
         Dict with:
@@ -47,9 +54,13 @@ def generate_weekly_report(daily_content: str, use_mock: bool = False) -> Dict:
         # Parse and categorize content
         parsed_data = parse_and_categorize(daily_content)
         
-        # Get week range
-        monday = parsed_data['week_range']['monday']
-        friday = parsed_data['week_range']['friday']
+        # Use provided date range if available, otherwise use parsed range
+        if start_date and end_date:
+            monday = start_date
+            friday = end_date
+        else:
+            monday = parsed_data['week_range']['monday']
+            friday = parsed_data['week_range']['friday']
         
         # Get LLM client
         llm_client = get_llm_client(use_mock=use_mock)

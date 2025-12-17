@@ -128,12 +128,17 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
     
     try {
       const response = await apiService.createTodoItem(newTodoContent.trim());
+      console.log('Create TODO response:', response);
       if (response.success && response.data) {
         setTodoItems(prev => [...prev, response.data!]);
         setNewTodoContent('');
+      } else {
+        console.error('Failed to create TODO:', response.error);
+        alert(`创建 TODO 失败: ${response.error || '未知错误'}`);
       }
     } catch (error) {
       console.error('Failed to create TODO item:', error);
+      alert(`创建 TODO 失败: ${error}`);
     }
   };
 

@@ -116,16 +116,29 @@ class ApiService {
     return response.json();
   }
 
-  async generateWeeklyReport(content: string, useMock: boolean = false): Promise<WeeklyReportResponse> {
+  async generateWeeklyReport(
+    content: string, 
+    useMock: boolean = false,
+    startDate?: string,
+    endDate?: string
+  ): Promise<WeeklyReportResponse> {
+    const requestBody: any = {
+      content,
+      use_mock: useMock,
+    };
+    
+    // Add date range if provided
+    if (startDate && endDate) {
+      requestBody.start_date = startDate;
+      requestBody.end_date = endDate;
+    }
+    
     const response = await fetch(`${this.baseUrl}/api/generate/weekly-report`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        content,
-        use_mock: useMock,
-      }),
+      body: JSON.stringify(requestBody),
     });
     return response.json();
   }

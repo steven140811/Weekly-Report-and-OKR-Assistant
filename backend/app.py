@@ -88,7 +88,9 @@ def api_generate_weekly_report():
     Request body:
     {
         "content": "daily report text...",
-        "use_mock": false  // optional, default false
+        "use_mock": false,  // optional, default false
+        "start_date": "2025-12-08",  // optional, date range start
+        "end_date": "2025-12-12"  // optional, date range end
     }
     """
     data = request.get_json()
@@ -100,13 +102,20 @@ def api_generate_weekly_report():
     
     content = data['content']
     use_mock = data.get('use_mock', False)
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
     
     # If LLM not configured, force mock mode
     if not Config.is_llm_configured():
         use_mock = True
         logger.info("LLM not configured, using mock mode")
     
-    result = generate_weekly_report(content, use_mock=use_mock)
+    result = generate_weekly_report(
+        content, 
+        use_mock=use_mock,
+        start_date=start_date,
+        end_date=end_date
+    )
     
     if result['success']:
         # Validate the generated report
