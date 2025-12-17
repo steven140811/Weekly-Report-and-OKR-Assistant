@@ -11,6 +11,7 @@ from flask_cors import CORS
 from generator import generate_weekly_report, generate_okr, validate_weekly_report, validate_okr
 from parser import parse_and_categorize, get_current_week_range, format_date
 from config import Config
+import database as db
 
 # Configure logging
 logging.basicConfig(
@@ -212,6 +213,284 @@ def not_found(e):
 def internal_error(e):
     logger.error(f"Internal server error: {e}")
     return jsonify({'error': 'Internal server error'}), 500
+
+
+# ========================
+# Daily Reports API
+# ========================
+
+@app.route('/api/daily-reports', methods=['POST'])
+def save_daily_report():
+    """
+    Save or update a daily report.
+    
+    Request body:
+    {
+        "entry_date": "2025-01-20",
+        "content": "Daily report content..."
+    }
+    """
+    data = request.get_json()
+    if not data or 'entry_date' not in data or 'content' not in data:
+        return jsonify({
+            'success': False,
+            'error': '缺少 entry_date 或 content 字段'
+        }), 400
+    
+    success = db.save_daily_report(data['entry_date'], data['content'])
+    
+    if success:
+        return jsonify({'success': True, 'message': '日报保存成功'})
+    else:
+        return jsonify({'success': False, 'error': '日报保存失败'}), 500
+
+
+@app.route('/api/daily-reports/<entry_date>', methods=['GET'])
+def get_daily_report(entry_date):
+    """
+    Get a daily report by date.
+    
+    URL parameter: entry_date (YYYY-MM-DD format)
+    """
+    report = db.get_daily_report(entry_date)
+    
+    if report:
+        return jsonify({'success': True, 'data': report})
+    else:
+        return jsonify({'success': True, 'data': None})
+
+
+@app.route('/api/daily-reports/range', methods=['GET'])
+def get_daily_reports_by_range():
+    """
+    Get daily reports within a date range.
+    
+    Query parameters:
+    - start_date: Start date (YYYY-MM-DD)
+    - end_date: End date (YYYY-MM-DD)
+    """
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
+    if not start_date or not end_date:
+        return jsonify({
+            'success': False,
+            'error': '缺少 start_date 或 end_date 参数'
+        }), 400
+    
+    reports = db.get_daily_reports_by_range(start_date, end_date)
+    return jsonify({'success': True, 'data': reports})
+
+
+@app.route('/api/daily-reports/dates', methods=['GET'])
+def get_daily_report_dates():
+    """
+    Get all dates that have daily reports.
+    """
+    dates = db.get_all_daily_report_dates()
+    return jsonify({'success': True, 'data': dates})
+
+
+@app.route('/api/daily-reports/<entry_date>', methods=['DELETE'])
+def delete_daily_report(entry_date):
+    """
+    Delete a daily report by date.
+    
+    URL parameter: entry_date (YYYY-MM-DD format)
+    """
+    success = db.delete_daily_report(entry_date)
+    
+    if success:
+        return jsonify({'success': True, 'message': '日报删除成功'})
+    else:
+        return jsonify({'success': False, 'error': '日报不存在或删除失败'}), 404
+
+
+# ========================
+# Weekly Reports API
+# ========================
+
+@app.route('/api/weekly-reports', methods=['POST'])
+def save_weekly_report():
+    """
+    Save or update a weekly report.
+    
+    Request body:
+    {
+        "start_date": "2025-01-20",
+        "end_date": "2025-01-24",
+        "content": "Weekly report content..."
+    }
+    """
+    data = request.get_json()
+    if not data or 'start_date' not in data or 'end_date' not in data or 'content' not in data:
+        return jsonify({
+            'success': False,
+            'error': '缺少 start_date、end_date 或 content 字段'
+        }), 400
+    
+    success = db.save_weekly_report(data['start_date'], data['end_date'], data['content'])
+    
+    if success:
+        return jsonify({'success': True, 'message': '周报保存成功'})
+    else:
+        return jsonify({'success': False, 'error': '周报保存失败'}), 500
+
+
+@app.route('/api/weekly-reports/query', methods=['GET'])
+def query_weekly_report():
+    """
+    Get a weekly report by start and end date.
+    
+    Query parameters:
+    - start_date: Week start date (YYYY-MM-DD)
+    - end_date: Week end date (YYYY-MM-DD)
+    """
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
+    if not start_date or not end_date:
+        return jsonify({
+            'success': False,
+            'error': '缺少 start_date 或 end_date 参数'
+        }), 400
+    
+    report = db.get_weekly_report(start_date, end_date)
+    
+    if report:
+        return jsonify({'success': True, 'data': report})
+    else:
+        return jsonify({'success': True, 'data': None})
+
+
+@app.route('/api/weekly-reports/latest', methods=['GET'])
+def get_latest_weekly_report():
+    """
+    Get the most recent weekly report.
+    """
+    report = db.get_latest_weekly_report()
+    
+    if report:
+        return jsonify({'success': True, 'data': report})
+    else:
+        return jsonify({'success': True, 'data': None})
+
+
+@app.route('/api/weekly-reports', methods=['GET'])
+def get_all_weekly_reports():
+    """
+    Get all weekly reports ordered by end_date descending.
+    """
+    reports = db.get_all_weekly_reports()
+    return jsonify({'success': True, 'data': reports})
+
+
+@app.route('/api/weekly-reports', methods=['DELETE'])
+def delete_weekly_report():
+    """
+    Delete a weekly report by start and end date.
+    
+    Query parameters:
+    - start_date: Week start date (YYYY-MM-DD)
+    - end_date: Week end date (YYYY-MM-DD)
+    """
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
+    if not start_date or not end_date:
+        return jsonify({
+            'success': False,
+            'error': '缺少 start_date 或 end_date 参数'
+        }), 400
+    
+    success = db.delete_weekly_report(start_date, end_date)
+    
+    if success:
+        return jsonify({'success': True, 'message': '周报删除成功'})
+    else:
+        return jsonify({'success': False, 'error': '周报不存在或删除失败'}), 404
+
+
+# ========================
+# OKR Reports API
+# ========================
+
+@app.route('/api/okr-reports', methods=['POST'])
+def save_okr_report():
+    """
+    Save or update an OKR report.
+    
+    Request body:
+    {
+        "creation_date": "2025-01-20",
+        "content": "OKR content..."
+    }
+    """
+    data = request.get_json()
+    if not data or 'creation_date' not in data or 'content' not in data:
+        return jsonify({
+            'success': False,
+            'error': '缺少 creation_date 或 content 字段'
+        }), 400
+    
+    success = db.save_okr_report(data['creation_date'], data['content'])
+    
+    if success:
+        return jsonify({'success': True, 'message': 'OKR保存成功'})
+    else:
+        return jsonify({'success': False, 'error': 'OKR保存失败'}), 500
+
+
+@app.route('/api/okr-reports/<creation_date>', methods=['GET'])
+def get_okr_report(creation_date):
+    """
+    Get an OKR report by creation date.
+    
+    URL parameter: creation_date (YYYY-MM-DD format)
+    """
+    report = db.get_okr_report(creation_date)
+    
+    if report:
+        return jsonify({'success': True, 'data': report})
+    else:
+        return jsonify({'success': True, 'data': None})
+
+
+@app.route('/api/okr-reports/latest', methods=['GET'])
+def get_latest_okr_report():
+    """
+    Get the most recent OKR report.
+    """
+    report = db.get_latest_okr_report()
+    
+    if report:
+        return jsonify({'success': True, 'data': report})
+    else:
+        return jsonify({'success': True, 'data': None})
+
+
+@app.route('/api/okr-reports', methods=['GET'])
+def get_all_okr_reports():
+    """
+    Get all OKR reports ordered by creation_date descending.
+    """
+    reports = db.get_all_okr_reports()
+    return jsonify({'success': True, 'data': reports})
+
+
+@app.route('/api/okr-reports/<creation_date>', methods=['DELETE'])
+def delete_okr_report(creation_date):
+    """
+    Delete an OKR report by creation date.
+    
+    URL parameter: creation_date (YYYY-MM-DD format)
+    """
+    success = db.delete_okr_report(creation_date)
+    
+    if success:
+        return jsonify({'success': True, 'message': 'OKR删除成功'})
+    else:
+        return jsonify({'success': False, 'error': 'OKR不存在或删除失败'}), 404
 
 
 if __name__ == '__main__':

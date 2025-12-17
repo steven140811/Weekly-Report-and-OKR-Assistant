@@ -8,6 +8,10 @@ const OKRGenerator: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<OKRResponse | null>(null);
   const [error, setError] = useState<string>('');
+  
+  // Save states
+  const [saving, setSaving] = useState<boolean>(false);
+  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleGenerate = async () => {
     if (!content.trim()) {
@@ -18,6 +22,7 @@ const OKRGenerator: React.FC = () => {
     setLoading(true);
     setError('');
     setResult(null);
+    setSaveMessage(null);
 
     try {
       const response = await apiService.generateOKR(content, nextQuarter);
@@ -35,6 +40,30 @@ const OKRGenerator: React.FC = () => {
   const handleCopy = () => {
     if (result?.okr) {
       navigator.clipboard.writeText(result.okr);
+    }
+  };
+
+  // Save OKR to database
+  const handleSave = async () => {
+    if (!result?.okr) return;
+
+    setSaving(true);
+    setSaveMessage(null);
+
+    try {
+      // Use today's date as creation_date
+      const today = new Date().toISOString().split('T')[0];
+      const response = await apiService.saveOKRReport(today, result.okr);
+
+      if (response.success) {
+        setSaveMessage({ type: 'success', text: 'OKR保存成功！' });
+      } else {
+        setSaveMessage({ type: 'error', text: response.error || '保存失败' });
+      }
+    } catch (err) {
+      setSaveMessage({ type: 'error', text: '保存失败，请检查网络连接' });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -147,10 +176,25 @@ const OKRGenerator: React.FC = () => {
         <div className="result-section">
           <div className="result-header">
             <h3>生成结果</h3>
-            <button className="copy-btn" onClick={handleCopy}>
-              复制内容
-            </button>
+            <div className="result-actions">
+              <button className="copy-btn" onClick={handleCopy}>
+                复制内容
+              </button>
+              <button 
+                className="save-btn" 
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? '保存中...' : '💾 保存OKR'}
+              </button>
+            </div>
           </div>
+
+          {saveMessage && (
+            <div className={`save-message ${saveMessage.type}`}>
+              {saveMessage.text}
+            </div>
+          )}
           
           {result.validation && renderValidation(result.validation)}
           

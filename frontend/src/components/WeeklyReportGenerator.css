@@ -15,6 +15,16 @@
   font-size: 14px;
 }
 
+.week-range-info {
+  background: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 4px;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  color: #1890ff;
+  font-size: 14px;
+}
+
 .input-section {
   margin-bottom: 20px;
 }
@@ -29,6 +39,25 @@
 .input-header label {
   font-weight: bold;
   color: #333;
+}
+
+.input-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.import-daily-btn {
+  padding: 4px 12px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.import-daily-btn:hover {
+  background-color: #40a9ff;
 }
 
 .sample-btn {
@@ -117,6 +146,11 @@
   color: #333;
 }
 
+.result-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .copy-btn {
   padding: 6px 16px;
   background-color: #28a745;
@@ -128,6 +162,42 @@
 
 .copy-btn:hover {
   background-color: #218838;
+}
+
+.save-btn {
+  padding: 6px 16px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #40a9ff;
+}
+
+.save-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.save-message {
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.save-message.success {
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  color: #52c41a;
+}
+
+.save-message.error {
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: #ff4d4f;
 }
 
 .validation-result {
@@ -175,4 +245,266 @@
   line-height: 1.6;
   max-height: 600px;
   overflow-y: auto;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-hint {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.loading-text {
+  text-align: center;
+  color: #1890ff;
+  padding: 30px;
+}
+
+.daily-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.daily-item {
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.daily-item:hover {
+  border-color: #1890ff;
+}
+
+.daily-item.selected {
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.daily-item.no-report {
+  background: #fafafa;
+  cursor: not-allowed;
+}
+
+.daily-item.no-report:hover {
+  border-color: #e8e8e8;
+}
+
+.daily-item-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.daily-date {
+  font-weight: bold;
+  color: #333;
+}
+
+.status-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.status-badge.has {
+  background: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+.status-badge.no {
+  background: #f5f5f5;
+  color: #999;
+  border: 1px solid #d9d9d9;
+}
+
+.daily-preview {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.btn-cancel {
+  padding: 8px 16px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-cancel:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.btn-confirm {
+  padding: 8px 16px;
+  background: #1890ff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background: #40a9ff;
+}
+
+.btn-confirm:disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
+}
+
+/* Date Range Selector in Modal */
+.date-range-selector {
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.date-range-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.date-input-group label {
+  font-size: 12px;
+  color: #666;
+  font-weight: bold;
+}
+
+.date-input-group input[type="date"] {
+  padding: 6px 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.date-input-group input[type="date"]:focus {
+  border-color: #1890ff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.btn-load-range {
+  padding: 6px 12px;
+  background: #1890ff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-load-range:hover:not(:disabled) {
+  background: #40a9ff;
+}
+
+.btn-load-range:disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
+}
+
+.current-week-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-reset-week {
+  padding: 2px 8px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #666;
+}
+
+.btn-reset-week:hover {
+  border-color: #1890ff;
+  color: #1890ff;
 }

@@ -200,6 +200,11 @@
   color: #333;
 }
 
+.okr-generator-container .result-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .okr-generator-container .copy-btn {
   padding: 6px 16px;
   background-color: #28a745;
@@ -211,4 +216,40 @@
 
 .okr-generator-container .copy-btn:hover {
   background-color: #218838;
+}
+
+.okr-generator-container .save-btn {
+  padding: 6px 16px;
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.okr-generator-container .save-btn:hover:not(:disabled) {
+  background-color: #40a9ff;
+}
+
+.okr-generator-container .save-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.okr-generator-container .save-message {
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.okr-generator-container .save-message.success {
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  color: #52c41a;
+}
+
+.okr-generator-container .save-message.error {
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  color: #ff4d4f;
 }

@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import DailyReportEntry from './components/DailyReportEntry';
 import WeeklyReportGenerator from './components/WeeklyReportGenerator';
+import WeeklyReportQuery from './components/WeeklyReportQuery';
 import OKRGenerator from './components/OKRGenerator';
 import apiService, { HealthResponse } from './services/api';
 import './App.css';
 
 // Get version from package.json
-const APP_VERSION = process.env.REACT_APP_VERSION || '0.4.0';
+const APP_VERSION = process.env.REACT_APP_VERSION || '0.5.0';
 
-type TabType = 'weekly-report' | 'okr';
+type TabType = 'daily-entry' | 'weekly-report' | 'weekly-query' | 'okr';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('weekly-report');
+  const [activeTab, setActiveTab] = useState<TabType>('daily-entry');
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [healthError, setHealthError] = useState<string>('');
 
@@ -48,10 +50,22 @@ function App() {
 
       <nav className="tab-nav">
         <button
+          className={`tab-btn ${activeTab === 'daily-entry' ? 'active' : ''}`}
+          onClick={() => setActiveTab('daily-entry')}
+        >
+          📅 日报录入
+        </button>
+        <button
           className={`tab-btn ${activeTab === 'weekly-report' ? 'active' : ''}`}
           onClick={() => setActiveTab('weekly-report')}
         >
           📋 周报生成
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'weekly-query' ? 'active' : ''}`}
+          onClick={() => setActiveTab('weekly-query')}
+        >
+          🔍 周报查询
         </button>
         <button
           className={`tab-btn ${activeTab === 'okr' ? 'active' : ''}`}
@@ -62,7 +76,9 @@ function App() {
       </nav>
 
       <main className="main-content">
+        {activeTab === 'daily-entry' && <DailyReportEntry />}
         {activeTab === 'weekly-report' && <WeeklyReportGenerator />}
+        {activeTab === 'weekly-query' && <WeeklyReportQuery />}
         {activeTab === 'okr' && <OKRGenerator />}
       </main>
 
