@@ -2,7 +2,34 @@
 
 [中文文档](README_CN.md) | English
 
-An intelligent assistant to help you generate weekly reports and manage OKRs (Objectives and Key Results) efficiently. Based on LLM, supports automatically generating standardized weekly report emails from daily reports, and generating quarterly OKRs based on historical materials.
+An AI-powered intelligent work report assistant designed to boost workplace efficiency. With three core features - daily report accumulation, intelligent weekly report generation, and OKR goal management - it helps you say goodbye to tedious document organization and makes report writing simple and efficient.
+
+**Core Value:**
+- 📝 **Daily Management**: Calendar-style daily report entry, record work anytime, built-in TODO reminder panel
+- 🤖 **Smart Weekly Reports**: One-click generation of standardized weekly reports from daily entries, auto-categorize, deduplicate, and extract risks
+- 🎯 **OKR Planning**: Intelligently generate quarterly OKRs based on historical materials, with quantitative metrics and milestone nodes
+- 💾 **Local Storage**: All data stored in local SQLite database, secure and reliable
+- 🚀 **One-Click Deployment**: Support Docker or local deployment, Windows users can use batch scripts for one-click start
+
+## 📸 Product Showcase
+
+### Daily Report Entry
+![Daily Report Entry](./screenshots/daily-report-entry.png)
+*Calendar View + TODO Tips Panel + Quick Template*
+
+### Weekly Report Generator
+![Weekly Report Generator](./screenshots/weekly-report-generator.png)
+*Import from Daily Reports + Smart Categorization + Risk Analysis*
+
+### Weekly Report Query
+![Weekly Report Query](./screenshots/weekly-report-query.png)
+*History Query + Edit/Delete Functions*
+
+### OKR Management
+![OKR Management](./screenshots/okr-generator.png)
+*Smart Generation + Quantitative Metrics + Milestone Planning*
+
+> 💡 **Tip**: To add screenshots, place image files in the `screenshots/` directory. See [screenshots/README.md](./screenshots/README.md) for details.
 
 ## 📋 Features
 
