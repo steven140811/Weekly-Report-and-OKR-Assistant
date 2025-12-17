@@ -13,6 +13,9 @@ const WeeklyReportGenerator: React.FC = () => {
   const [weekRange, setWeekRange] = useState<WeekRange | null>(null);
   const [modalStartDate, setModalStartDate] = useState<string>('');
   const [modalEndDate, setModalEndDate] = useState<string>('');
+  // Store the actual imported date range for report generation
+  const [importedStartDate, setImportedStartDate] = useState<string>('');
+  const [importedEndDate, setImportedEndDate] = useState<string>('');
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [dailyReportsMap, setDailyReportsMap] = useState<Record<string, DailyReport>>({});
@@ -106,6 +109,10 @@ const WeeklyReportGenerator: React.FC = () => {
       return '';
     }).filter(Boolean).join('\n\n');
 
+    // Store the imported date range for report generation
+    setImportedStartDate(modalStartDate);
+    setImportedEndDate(modalEndDate);
+    
     setDailyContent(importedContent);
     setShowDailyModal(false);
   };
@@ -166,15 +173,21 @@ const WeeklyReportGenerator: React.FC = () => {
 
   // Save weekly report to database
   const handleSaveReport = async () => {
-    if (!result?.report || !weekRange) return;
+    if (!result?.report) return;
+    
+    // Use imported date range if available, otherwise use current week range
+    const startDate = importedStartDate || weekRange?.monday;
+    const endDate = importedEndDate || weekRange?.friday;
+    
+    if (!startDate || !endDate) return;
 
     setSaving(true);
     setSaveMessage(null);
 
     try {
       const response = await apiService.saveWeeklyReport(
-        weekRange.monday,
-        weekRange.friday,
+        startDate,
+        endDate,
         result.report
       );
 
@@ -245,6 +258,11 @@ const WeeklyReportGenerator: React.FC = () => {
       {weekRange && (
         <div className="week-range-info">
           📅 本周范围: {weekRange.monday} ~ {weekRange.friday}
+          {importedStartDate && importedEndDate && (importedStartDate !== weekRange.monday || importedEndDate !== weekRange.friday) && (
+            <span className="imported-range">
+              &nbsp;| 📝 已导入日期范围: {importedStartDate} ~ {importedEndDate}
+            </span>
+          )}
         </div>
       )}
 

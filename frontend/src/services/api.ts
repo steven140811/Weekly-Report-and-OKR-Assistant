@@ -77,6 +77,15 @@ export interface OKRReport {
   updated_at?: string;
 }
 
+export interface TodoItem {
+  id: number;
+  content: string;
+  completed: number;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -270,6 +279,44 @@ class ApiService {
 
   async deleteOKRReport(creationDate: string): Promise<ApiResponse<null>> {
     const response = await fetch(`${this.baseUrl}/api/okr-reports/${creationDate}`, {
+      method: 'DELETE',
+    });
+    return response.json();
+  }
+
+  // ========================
+  // TODO Items API
+  // ========================
+
+  async getTodoItems(): Promise<ApiResponse<TodoItem[]>> {
+    const response = await fetch(`${this.baseUrl}/api/todo-items`);
+    return response.json();
+  }
+
+  async createTodoItem(content: string): Promise<ApiResponse<TodoItem>> {
+    const response = await fetch(`${this.baseUrl}/api/todo-items`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content }),
+    });
+    return response.json();
+  }
+
+  async updateTodoItem(id: number, updates: { content?: string; completed?: boolean }): Promise<ApiResponse<TodoItem>> {
+    const response = await fetch(`${this.baseUrl}/api/todo-items/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updates),
+    });
+    return response.json();
+  }
+
+  async deleteTodoItem(id: number): Promise<ApiResponse<null>> {
+    const response = await fetch(`${this.baseUrl}/api/todo-items/${id}`, {
       method: 'DELETE',
     });
     return response.json();

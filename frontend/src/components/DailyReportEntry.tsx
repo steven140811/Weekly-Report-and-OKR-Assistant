@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import apiService from '../services/api';
+import apiService, { TodoItem } from '../services/api';
 import './DailyReportEntry.css';
 
 interface DailyReportEntryProps {}
@@ -13,6 +13,11 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  
+  // TODO Tips states
+  const [todoItems, setTodoItems] = useState<TodoItem[]>([]);
+  const [newTodoContent, setNewTodoContent] = useState('');
+  const [loadingTodos, setLoadingTodos] = useState(false);
 
   const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
@@ -35,18 +40,35 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
     return `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月`;
   };
 
-  // Load all report dates - called on mount and when coming back to this tab
-  const loadReportDates = useCallback(async () => {
+  // Load all report dates and their contents - called on mount
+  const loadReportDatesAndContents = useCallback(async () => {
     try {
       const response = await apiService.getDailyReportDates();
       if (response.success && response.data) {
-        setReportDates(response.data);
-        return response.data;
+        const dates = response.data;
+        setReportDates(dates);
+        
+        // Load content for all dates to populate the cache
+        const cacheData: Record<string, string> = {};
+        await Promise.all(
+          dates.map(async (dateStr: string) => {
+            try {
+              const reportResponse = await apiService.getDailyReport(dateStr);
+              if (reportResponse.success && reportResponse.data?.content) {
+                cacheData[dateStr] = reportResponse.data.content;
+              }
+            } catch (error) {
+              console.error(`Failed to load report for ${dateStr}:`, error);
+            }
+          })
+        );
+        setReportCache(cacheData);
+        return { dates, cache: cacheData };
       }
     } catch (error) {
       console.error('Failed to load report dates:', error);
     }
-    return [];
+    return { dates: [], cache: {} };
   }, []);
 
   // Initialize component - only run once on mount
@@ -54,27 +76,90 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
     const initializeComponent = async () => {
       // Clear cache and reload fresh data every time component mounts
       setReportCache({});
-      await loadReportDates();
+      const { cache } = await loadReportDatesAndContents();
       const today = formatDate(new Date());
       setSelectedDate(today);
-      // Load today's report without using cache
-      setLoading(true);
-      try {
-        const response = await apiService.getDailyReport(today);
-        if (response.success) {
-          const reportContent = response.data?.content || '';
-          setContent(reportContent);
-          setReportCache({ [today]: reportContent });
+      // Set today's content from cache or load it
+      if (cache[today]) {
+        setContent(cache[today]);
+      } else {
+        setLoading(true);
+        try {
+          const response = await apiService.getDailyReport(today);
+          if (response.success) {
+            const reportContent = response.data?.content || '';
+            setContent(reportContent);
+            setReportCache(prev => ({ ...prev, [today]: reportContent }));
+          }
+        } catch (error) {
+          console.error('Failed to load report:', error);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Failed to load report:', error);
-      } finally {
-        setLoading(false);
       }
     };
     
     initializeComponent();
   }, []); // Empty dependency array - only run on mount
+
+  // Load TODO items
+  const loadTodoItems = useCallback(async () => {
+    setLoadingTodos(true);
+    try {
+      const response = await apiService.getTodoItems();
+      if (response.success && response.data) {
+        setTodoItems(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to load TODO items:', error);
+    } finally {
+      setLoadingTodos(false);
+    }
+  }, []);
+
+  // Load TODO items on mount
+  useEffect(() => {
+    loadTodoItems();
+  }, [loadTodoItems]);
+
+  // Add new TODO item
+  const handleAddTodo = async () => {
+    if (!newTodoContent.trim()) return;
+    
+    try {
+      const response = await apiService.createTodoItem(newTodoContent.trim());
+      if (response.success && response.data) {
+        setTodoItems(prev => [...prev, response.data!]);
+        setNewTodoContent('');
+      }
+    } catch (error) {
+      console.error('Failed to create TODO item:', error);
+    }
+  };
+
+  // Toggle TODO completion
+  const handleToggleTodo = async (id: number, currentCompleted: number) => {
+    try {
+      const response = await apiService.updateTodoItem(id, { completed: currentCompleted === 0 });
+      if (response.success && response.data) {
+        setTodoItems(prev => prev.map(item => item.id === id ? response.data! : item));
+      }
+    } catch (error) {
+      console.error('Failed to update TODO item:', error);
+    }
+  };
+
+  // Delete TODO item
+  const handleDeleteTodo = async (id: number) => {
+    try {
+      const response = await apiService.deleteTodoItem(id);
+      if (response.success) {
+        setTodoItems(prev => prev.filter(item => item.id !== id));
+      }
+    } catch (error) {
+      console.error('Failed to delete TODO item:', error);
+    }
+  };
 
   // Handle date selection - directly load the report for selected date
   const handleDateSelect = async (dateStr: string) => {
@@ -224,7 +309,59 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
         </div>
       </div>
 
-      <div className="calendar-container">
+      <div className="main-content-area">
+        {/* TODO Tips Panel */}
+        <div className="todo-tips-panel">
+          <div className="todo-tips-header">
+            <h4>📝 TODO Tips</h4>
+          </div>
+          <div className="todo-tips-body">
+            <div className="todo-input-area">
+              <input
+                type="text"
+                className="todo-input"
+                value={newTodoContent}
+                onChange={(e) => setNewTodoContent(e.target.value)}
+                placeholder="添加新的 TODO..."
+                onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
+              />
+              <button className="btn btn-primary todo-add-btn" onClick={handleAddTodo}>
+                +
+              </button>
+            </div>
+            
+            {loadingTodos ? (
+              <div className="todo-loading">加载中...</div>
+            ) : (
+              <ul className="todo-list">
+                {todoItems.map(item => (
+                  <li key={item.id} className={`todo-item ${item.completed ? 'completed' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={item.completed === 1}
+                      onChange={() => handleToggleTodo(item.id, item.completed)}
+                      className="todo-checkbox"
+                    />
+                    <span className="todo-content">{item.content}</span>
+                    <button
+                      className="todo-delete-btn"
+                      onClick={() => handleDeleteTodo(item.id)}
+                      title="删除"
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+                {todoItems.length === 0 && (
+                  <li className="todo-empty">暂无 TODO 项</li>
+                )}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        {/* Calendar Container */}
+        <div className="calendar-container">
         <div className="calendar-header">
           <h3>{getMonthYearDisplay()}</h3>
           <div className="calendar-nav">
@@ -235,8 +372,13 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
         </div>
 
         <div className="calendar-grid">
-          {weekdays.map(day => (
-            <div key={day} className="calendar-weekday">{day}</div>
+          {weekdays.map((day, index) => (
+            <div 
+              key={day} 
+              className={`calendar-weekday ${index === 0 || index === 6 ? 'weekend' : ''}`}
+            >
+              {day}
+            </div>
           ))}
           
           {calendarDays.map((day, index) => {
@@ -244,15 +386,18 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
               return <div key={`empty-${index}`} className="calendar-day empty" />;
             }
 
-            const dateStr = formatDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
+            const dateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+            const dateStr = formatDate(dateObj);
             const isToday = dateStr === today;
             const isSelected = dateStr === selectedDate;
             const hasReport = reportDates.includes(dateStr);
+            const dayOfWeek = dateObj.getDay();
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
             return (
               <div
                 key={dateStr}
-                className={`calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${hasReport ? 'has-report' : ''}`}
+                className={`calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${hasReport ? 'has-report' : ''} ${isWeekend ? 'weekend' : ''}`}
                 onClick={() => handleDateSelect(dateStr)}
               >
                 <div className="day-number">{day}</div>
@@ -271,6 +416,7 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
           })}
         </div>
       </div>
+      </div> {/* End main-content-area */}
 
       {selectedDate && (
         <div className="report-editor">

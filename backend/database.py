@@ -73,6 +73,18 @@ def init_database():
             )
         ''')
         
+        # Create todo_items table
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS todo_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                content TEXT NOT NULL,
+                completed INTEGER DEFAULT 0,
+                sort_order INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
         conn.commit()
         logger.info("Database initialized successfully")
         
@@ -567,6 +579,153 @@ def delete_okr_report(creation_date: str) -> bool:
         
     except Exception as e:
         logger.error(f"Error deleting OKR report: {e}")
+        return False
+    finally:
+        conn.close()
+
+
+# ===================
+# TODO Items Functions
+# ===================
+
+def get_all_todo_items() -> List[Dict[str, Any]]:
+    """
+    Get all TODO items.
+    
+    Returns:
+        List of TODO items
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('''
+            SELECT * FROM todo_items 
+            ORDER BY sort_order ASC, created_at DESC
+        ''')
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+        
+    except Exception as e:
+        logger.error(f"Error getting TODO items: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def create_todo_item(content: str) -> Optional[Dict[str, Any]]:
+    """
+    Create a new TODO item.
+    
+    Args:
+        content: TODO item content
+        
+    Returns:
+        Created TODO item or None
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Get max sort_order
+        cursor.execute('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM todo_items')
+        next_order = cursor.fetchone()[0]
+        
+        now = datetime.now().isoformat()
+        cursor.execute('''
+            INSERT INTO todo_items (content, completed, sort_order, created_at, updated_at)
+            VALUES (?, 0, ?, ?, ?)
+        ''', (content, next_order, now, now))
+        
+        conn.commit()
+        
+        # Get the created item
+        cursor.execute('SELECT * FROM todo_items WHERE id = ?', (cursor.lastrowid,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+        
+    except Exception as e:
+        logger.error(f"Error creating TODO item: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def update_todo_item(item_id: int, content: str = None, completed: bool = None) -> Optional[Dict[str, Any]]:
+    """
+    Update a TODO item.
+    
+    Args:
+        item_id: TODO item ID
+        content: New content (optional)
+        completed: New completed status (optional)
+        
+    Returns:
+        Updated TODO item or None
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        updates = []
+        params = []
+        
+        if content is not None:
+            updates.append('content = ?')
+            params.append(content)
+        
+        if completed is not None:
+            updates.append('completed = ?')
+            params.append(1 if completed else 0)
+        
+        if not updates:
+            return None
+            
+        updates.append('updated_at = ?')
+        params.append(datetime.now().isoformat())
+        params.append(item_id)
+        
+        cursor.execute(f'''
+            UPDATE todo_items 
+            SET {', '.join(updates)}
+            WHERE id = ?
+        ''', params)
+        
+        conn.commit()
+        
+        if cursor.rowcount > 0:
+            cursor.execute('SELECT * FROM todo_items WHERE id = ?', (item_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        return None
+        
+    except Exception as e:
+        logger.error(f"Error updating TODO item: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def delete_todo_item(item_id: int) -> bool:
+    """
+    Delete a TODO item.
+    
+    Args:
+        item_id: TODO item ID
+        
+    Returns:
+        bool: True if successful
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('DELETE FROM todo_items WHERE id = ?', (item_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+        
+    except Exception as e:
+        logger.error(f"Error deleting TODO item: {e}")
         return False
     finally:
         conn.close()

@@ -493,6 +493,84 @@ def delete_okr_report(creation_date):
         return jsonify({'success': False, 'error': 'OKR不存在或删除失败'}), 404
 
 
+# ===================
+# TODO Items API
+# ===================
+
+@app.route('/api/todo-items', methods=['GET'])
+def get_todo_items():
+    """
+    Get all TODO items.
+    """
+    items = db.get_all_todo_items()
+    return jsonify({'success': True, 'data': items})
+
+
+@app.route('/api/todo-items', methods=['POST'])
+def create_todo_item():
+    """
+    Create a new TODO item.
+    
+    Request body:
+    {
+        "content": "TODO item content"
+    }
+    """
+    data = request.get_json()
+    if not data or 'content' not in data:
+        return jsonify({'success': False, 'error': '缺少 content 字段'}), 400
+    
+    content = data['content'].strip()
+    if not content:
+        return jsonify({'success': False, 'error': '内容不能为空'}), 400
+    
+    item = db.create_todo_item(content)
+    
+    if item:
+        return jsonify({'success': True, 'data': item})
+    else:
+        return jsonify({'success': False, 'error': '创建失败'}), 500
+
+
+@app.route('/api/todo-items/<int:item_id>', methods=['PUT'])
+def update_todo_item(item_id):
+    """
+    Update a TODO item.
+    
+    Request body:
+    {
+        "content": "Updated content",  // optional
+        "completed": true  // optional
+    }
+    """
+    data = request.get_json()
+    if not data:
+        return jsonify({'success': False, 'error': '缺少请求体'}), 400
+    
+    content = data.get('content')
+    completed = data.get('completed')
+    
+    item = db.update_todo_item(item_id, content=content, completed=completed)
+    
+    if item:
+        return jsonify({'success': True, 'data': item})
+    else:
+        return jsonify({'success': False, 'error': '更新失败或项目不存在'}), 404
+
+
+@app.route('/api/todo-items/<int:item_id>', methods=['DELETE'])
+def delete_todo_item(item_id):
+    """
+    Delete a TODO item.
+    """
+    success = db.delete_todo_item(item_id)
+    
+    if success:
+        return jsonify({'success': True, 'message': 'TODO项删除成功'})
+    else:
+        return jsonify({'success': False, 'error': 'TODO项不存在或删除失败'}), 404
+
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'

@@ -10,12 +10,145 @@
   color: #333;
 }
 
+/* Main content area with TODO panel and calendar */
+.main-content-area {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+/* TODO Tips Panel */
+.todo-tips-panel {
+  width: 280px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 20px;
+}
+
+.todo-tips-header {
+  padding: 12px 16px;
+  background: #1890ff;
+  color: #fff;
+  border-radius: 8px 8px 0 0;
+}
+
+.todo-tips-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.todo-tips-body {
+  padding: 16px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.todo-input-area {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.todo-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.todo-input:focus {
+  border-color: #1890ff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.todo-add-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.todo-item:hover {
+  background: #fafafa;
+}
+
+.todo-item.completed .todo-content {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.todo-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.todo-content {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  word-break: break-word;
+}
+
+.todo-delete-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.todo-delete-btn:hover {
+  background: #ff4d4f;
+  color: #fff;
+}
+
+.todo-empty {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  padding: 20px;
+}
+
+.todo-loading {
+  text-align: center;
+  color: #1890ff;
+  padding: 20px;
+}
+
 .calendar-container {
+  flex: 1;
   background: #fff;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
 }
 
 .calendar-header {
@@ -65,6 +198,11 @@
   color: #666;
   background: #fafafa;
   border-radius: 4px;
+}
+
+/* Weekend weekday headers */
+.calendar-weekday.weekend {
+  color: #ff4d4f;
 }
 
 .calendar-day {
@@ -121,6 +259,11 @@
   margin-bottom: 5px;
 }
 
+/* Weekend day numbers */
+.calendar-day.weekend .day-number {
+  color: #ff4d4f;
+}
+
 .day-indicator {
   position: absolute;
   bottom: 5px;
@@ -166,6 +309,14 @@
 .editor-actions {
   display: flex;
   gap: 10px;
+  align-items: stretch;
+}
+
+.editor-actions .btn {
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .report-textarea {
@@ -278,10 +429,6 @@
 .stat-item .count {
   font-weight: bold;
   color: #1890ff;
-}
-
-.template-btn {
-  margin-bottom: 10px;
 }
 
 .placeholder-text {

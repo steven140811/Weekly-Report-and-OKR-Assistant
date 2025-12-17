@@ -8,10 +8,12 @@
 
 ### 📅 日报录入
 - **日历视图**：大日历界面，点击日期直接录入日报
+- **周末标识**：周六周日红色字体显示
 - **数据持久化**：日报自动保存到本地 SQLite 数据库
 - **快捷模板**：支持插入日报模板，快速填写
 - **状态标识**：已录入日期绿色标记，一目了然
 - **统计功能**：显示本月和总计录入数量
+- **TODO Tips**：左侧悬浮记事板，可添加/勾选/删除 TODO 项
 
 ### 📋 周报生成
 - **自动周报生成**：从文本日报（单天或整周拼接）生成固定结构的周报邮件正文
@@ -38,7 +40,7 @@
 ### 💾 数据存储
 - 使用 SQLite 轻量级数据库
 - 数据文件位置：`backend/data/reports.db`
-- 三张表：日报(daily_reports)、周报(weekly_reports)、OKR(okr_reports)
+- 四张表：日报(daily_reports)、周报(weekly_reports)、OKR(okr_reports)、TODO(todo_items)
 
 ## 🛠️ 技术栈
 
@@ -189,6 +191,12 @@ Weekly-Report-and-OKR-Assistant/
 - `POST /api/okr-report` - 保存 OKR
 - `PUT /api/okr-report/<id>` - 更新 OKR
 - `DELETE /api/okr-report/<id>` - 删除 OKR
+
+### TODO 管理
+- `GET /api/todo-items` - 获取所有 TODO 项
+- `POST /api/todo-items` - 创建 TODO 项
+- `PUT /api/todo-items/<id>` - 更新 TODO 项（内容/完成状态）
+- `DELETE /api/todo-items/<id>` - 删除 TODO 项
 
 ## 🔧 环境变量配置
 
