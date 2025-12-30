@@ -990,6 +990,45 @@ def recategorize_skills():
         return jsonify(result), 500
 
 
+@app.route('/api/skills/recategorize-llm', methods=['POST'])
+def recategorize_skills_with_llm():
+    """
+    使用 LLM 智能识别并更新所有技能的分类。
+    """
+    from generator import categorize_skills_with_llm
+    
+    # 获取所有技能
+    skills = db.get_all_skills_for_categorization()
+    
+    if not skills:
+        return jsonify({
+            'success': True,
+            'message': '没有需要分类的技能',
+            'updated_count': 0
+        })
+    
+    # 使用 LLM 进行分类
+    use_mock = not Config.is_llm_configured()
+    result = categorize_skills_with_llm(skills, use_mock=use_mock)
+    
+    if not result['success']:
+        return jsonify(result), 500
+    
+    # 更新数据库中的分类
+    categorized_skills = result.get('categorized_skills', [])
+    update_result = db.update_skill_categories(categorized_skills)
+    
+    if update_result['success']:
+        return jsonify({
+            'success': True,
+            'message': f"已使用 AI 更新 {update_result['updated_count']} 个技能的分类",
+            'updated_count': update_result['updated_count'],
+            'details': categorized_skills
+        })
+    else:
+        return jsonify(update_result), 500
+
+
 @app.route('/api/skills/<skill_name>/work-items', methods=['GET'])
 def get_work_items_by_skill(skill_name):
     """

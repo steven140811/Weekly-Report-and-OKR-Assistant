@@ -1276,7 +1276,7 @@ def upsert_skill(name: str, category: str = None) -> Optional[Dict[str, Any]]:
 
 def recategorize_all_skills() -> Dict[str, Any]:
     """
-    重新推断所有技能的分类。
+    重新推断所有技能的分类（使用关键词匹配）。
     
     Returns:
         包含操作结果的字典
@@ -1309,6 +1309,69 @@ def recategorize_all_skills() -> Dict[str, Any]:
         }
     except Exception as e:
         logger.error(f"Error recategorizing skills: {e}")
+        conn.rollback()
+        return {
+            'success': False,
+            'message': str(e)
+        }
+    finally:
+        conn.close()
+
+
+def get_all_skills_for_categorization() -> List[Dict[str, Any]]:
+    """获取所有技能用于分类。"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('''
+            SELECT id, name, category FROM skills 
+            WHERE name IS NOT NULL 
+              AND name != '' 
+              AND LOWER(name) NOT IN ('null', 'none', '待补充')
+        ''')
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+    except Exception as e:
+        logger.error(f"Error getting skills for categorization: {e}")
+        return []
+    finally:
+        conn.close()
+
+
+def update_skill_categories(categorized_skills: List[Dict]) -> Dict[str, Any]:
+    """
+    批量更新技能分类。
+    
+    Args:
+        categorized_skills: 包含 id, new_category 的技能列表
+        
+    Returns:
+        操作结果
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        now = datetime.now().isoformat()
+        updated_count = 0
+        
+        for skill in categorized_skills:
+            cursor.execute('''
+                UPDATE skills SET category = ?, updated_at = ? WHERE id = ?
+            ''', (skill['new_category'], now, skill['id']))
+            if cursor.rowcount > 0:
+                updated_count += 1
+        
+        conn.commit()
+        
+        return {
+            'success': True,
+            'message': f'已更新 {updated_count} 个技能的分类',
+            'updated_count': updated_count
+        }
+    except Exception as e:
+        logger.error(f"Error updating skill categories: {e}")
         conn.rollback()
         return {
             'success': False,

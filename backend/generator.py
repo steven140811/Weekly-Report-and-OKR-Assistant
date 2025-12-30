@@ -459,3 +459,100 @@ def generate_star_summary(project_name: str, work_items: list, use_mock: bool = 
             'error': str(e),
             'summary': ''
         }
+
+
+def categorize_skills_with_llm(skills: List[Dict], use_mock: bool = False) -> Dict:
+    """
+    使用 LLM 智能识别技能分类。
+    
+    Args:
+        skills: 技能列表，每个技能包含 id, name, category
+        use_mock: 是否使用 mock LLM
+        
+    Returns:
+        Dict with success, categorized_skills, etc.
+    """
+    try:
+        if not skills:
+            return {
+                'success': True,
+                'message': '没有需要分类的技能',
+                'categorized_count': 0
+            }
+        
+        llm_client = get_llm_client(use_mock=use_mock)
+        
+        # 构建技能列表字符串
+        skill_names = [s['name'] for s in skills]
+        skills_text = '\n'.join([f"- {name}" for name in skill_names])
+        
+        system_prompt = """你是一个技能分类专家。你需要将技能分类到以下四个类别之一：
+
+1. tech（技术技能）：编程语言、框架、工具、数据库、云服务、DevOps、数据分析工具等技术相关技能
+2. soft（软技能）：沟通、协调、管理、领导力、团队协作、文档写作、演讲表达、项目管理等人际和管理技能
+3. domain（业务领域）：特定行业知识，如汽车、金融、制造、供应链、质量管理、财务、人力资源等业务知识
+4. other（其他）：无法明确归类到以上三类的技能
+
+请严格按照 JSON 格式返回结果，不要包含任何其他内容。"""
+
+        user_prompt = f"""请对以下技能进行分类：
+
+{skills_text}
+
+请返回 JSON 格式，每个技能对应一个分类：
+{{
+  "技能名1": "tech",
+  "技能名2": "soft",
+  "技能名3": "domain",
+  ...
+}}
+
+只返回 JSON，不要有其他文字。"""
+
+        response = llm_client.call(user_prompt, system_prompt)
+        
+        # 解析 LLM 返回的 JSON
+        try:
+            # 尝试提取 JSON
+            json_match = re.search(r'\{[\s\S]*\}', response)
+            if json_match:
+                categories_map = json.loads(json_match.group())
+            else:
+                categories_map = json.loads(response)
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse LLM response as JSON: {e}")
+            logger.error(f"Response was: {response}")
+            return {
+                'success': False,
+                'error': f'LLM 返回格式错误: {str(e)}',
+                'raw_response': response
+            }
+        
+        # 构建结果
+        categorized_skills = []
+        for skill in skills:
+            skill_name = skill['name']
+            new_category = categories_map.get(skill_name, 'other')
+            # 验证分类值
+            if new_category not in ['tech', 'soft', 'domain', 'other']:
+                new_category = 'other'
+            categorized_skills.append({
+                'id': skill['id'],
+                'name': skill_name,
+                'old_category': skill.get('category'),
+                'new_category': new_category
+            })
+        
+        return {
+            'success': True,
+            'categorized_skills': categorized_skills,
+            'categorized_count': len(categorized_skills)
+        }
+        
+    except Exception as e:
+        logger.error(f"Skill categorization failed: {e}")
+        return {
+            'success': False,
+            'error': str(e)
+        }
+

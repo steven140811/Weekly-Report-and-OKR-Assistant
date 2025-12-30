@@ -521,6 +521,13 @@ class ApiService {
     });
     return response.json();
   }
+
+  async recategorizeSkillsWithLLM(): Promise<{ success: boolean; message: string; updated_count?: number; details?: any[] }> {
+    const response = await fetch(`${this.baseUrl}/api/skills/recategorize-llm`, {
+      method: 'POST',
+    });
+    return response.json();
+  }
 }
 
 // New interfaces for Career Asset Management

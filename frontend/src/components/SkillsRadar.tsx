@@ -14,6 +14,10 @@ const SkillsRadar: React.FC = () => {
   const [skillWorkItems, setSkillWorkItems] = useState<WorkItem[]>([]);
   const [loadingWorkItems, setLoadingWorkItems] = useState<boolean>(false);
   const [showSkillModal, setShowSkillModal] = useState<boolean>(false);
+  
+  // 智能分类状态
+  const [categorizing, setCategorizing] = useState<boolean>(false);
+  const [categorizeMessage, setCategorizeMessage] = useState<string>('');
 
   useEffect(() => {
     loadData();
@@ -79,6 +83,34 @@ const SkillsRadar: React.FC = () => {
     setShowSkillModal(false);
     setSelectedSkill(null);
     setSkillWorkItems([]);
+  };
+
+  // 使用 LLM 智能分类所有技能
+  const handleSmartCategorize = async () => {
+    if (categorizing) return;
+    
+    setCategorizing(true);
+    setCategorizeMessage('正在使用 AI 智能分类技能...');
+    setError('');
+    
+    try {
+      const response = await apiService.recategorizeSkillsWithLLM();
+      if (response.success) {
+        setCategorizeMessage(`✓ 智能分类完成！更新了 ${response.updated_count || 0} 个技能`);
+        // 重新加载数据
+        await loadData();
+        // 3秒后清除消息
+        setTimeout(() => setCategorizeMessage(''), 3000);
+      } else {
+        setError(response.message || '智能分类失败');
+        setCategorizeMessage('');
+      }
+    } catch (err) {
+      setError('智能分类请求失败');
+      setCategorizeMessage('');
+    } finally {
+      setCategorizing(false);
+    }
   };
 
   const getCategoryColor = (category?: string) => {
@@ -213,7 +245,27 @@ const SkillsRadar: React.FC = () => {
             {/* Skills List */}
             <div className="sr-skills-section">
               <div className="sr-section-header">
-                <h3>技能详情</h3>
+                <div className="sr-section-title-row">
+                  <h3>技能详情</h3>
+                  <button 
+                    className={`sr-smart-btn ${categorizing ? 'loading' : ''}`}
+                    onClick={handleSmartCategorize}
+                    disabled={categorizing}
+                    title="使用 AI 智能分类所有技能"
+                  >
+                    {categorizing ? (
+                      <>
+                        <span className="sr-smart-spinner"></span>
+                        分类中...
+                      </>
+                    ) : (
+                      <>🤖 智能分类</>
+                    )}
+                  </button>
+                </div>
+                {categorizeMessage && (
+                  <div className="sr-categorize-message">{categorizeMessage}</div>
+                )}
                 <div className="sr-filter">
                   <button 
                     className={`sr-filter-btn ${selectedCategory === 'all' ? 'active' : ''}`}

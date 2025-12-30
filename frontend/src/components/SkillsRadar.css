@@ -113,8 +113,7 @@
 
 .sr-section-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   margin-bottom: 20px;
 }
 
@@ -620,4 +619,68 @@
   font-size: 13px;
   color: var(--sr-green);
   margin: 0;
+}
+
+/* ========================================
+   Smart Categorize Button & Section Title
+   ======================================== */
+.sr-section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.sr-smart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: var(--sr-transition);
+  white-space: nowrap;
+}
+
+.sr-smart-btn:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.sr-smart-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.sr-smart-btn.loading {
+  background: linear-gradient(135deg, #a0a0a0 0%, #808080 100%);
+}
+
+.sr-smart-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sr-categorize-message {
+  font-size: 13px;
+  color: var(--sr-green);
+  padding: 6px 12px;
+  background: rgba(52, 199, 89, 0.1);
+  border-radius: 8px;
+  margin-bottom: 12px;
 }
