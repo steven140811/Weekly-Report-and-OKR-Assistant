@@ -34,9 +34,9 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>周报 & OKR 生成助手</h1>
+        <h1>WorkPilot 效能助手</h1>
         <p className="App-subtitle">
-          基于 LLM 的智能周报、OKR 和职业资产管理工具
+          基于 LLM 的智能日报/周报/OKR/职业资产管理工具
         </p>
         {health && (
           <div className={`status-badge ${health.llm_configured ? 'configured' : 'not-configured'}`}>
@@ -100,7 +100,7 @@ function App() {
 
       <footer className="App-footer">
         <p>
-          Weekly Report & OKR Assistant v{APP_VERSION} | 
+          WorkPilot v{APP_VERSION} | 
           最大输入长度: {health?.max_input_chars || 20000} 字符
         </p>
       </footer>

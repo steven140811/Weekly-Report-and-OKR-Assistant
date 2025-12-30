@@ -4,7 +4,7 @@ import App from './App';
 
 test('renders app header', () => {
   render(<App />);
-  const headerElement = screen.getByText(/周报 & OKR 生成助手/i);
+  const headerElement = screen.getByText(/WorkPilot 效能助手/i);
   expect(headerElement).toBeInTheDocument();
 });
 

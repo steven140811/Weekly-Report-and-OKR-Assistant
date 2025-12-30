@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiService, { OKRResponse, ValidationResult, OKRReport } from '../services/api';
+import { ExportFormat, exportOKR } from '../utils/export';
+import ExportButton from './ExportButton';
 import './OKRGenerator.css';
 
 const OKRGenerator: React.FC = () => {
@@ -296,6 +298,9 @@ const OKRGenerator: React.FC = () => {
               <div className="result-header">
                 <h3>生成结果</h3>
                 <div className="result-actions">
+                  <ExportButton 
+                    onExport={(format) => exportOKR(nextQuarter, result.okr!, format)}
+                  />
                   <button className="copy-btn" onClick={handleCopy}>
                     复制内容
                   </button>
@@ -382,6 +387,13 @@ const OKRGenerator: React.FC = () => {
                     <div className="detail-actions">
                       {!isEditing ? (
                         <>
+                          <ExportButton 
+                            onExport={(format) => exportOKR(
+                              selectedOKR.creation_date,
+                              selectedOKR.content,
+                              format
+                            )}
+                          />
                           <button className="edit-btn" onClick={handleEditOKR}>
                             ✏️ 编辑
                           </button>

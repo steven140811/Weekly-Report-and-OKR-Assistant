@@ -1,21 +1,24 @@
-# 周报与OKR助手
+# WorkPilot 效能助手
 
 中文文档 | [English](README.md)
 
-一个基于 AI 大模型的智能工作报告助手，专为提升职场效率而设计。通过日报积累、周报智能生成和 OKR 目标管理三大核心功能，帮助您告别繁琐的文档整理工作，让报告撰写变得简单高效。
+一个基于 AI 大模型的智能工作效能助手，专为提升职场效率而设计。通过日报积累、周报智能生成、OKR 目标管理、职业资产沉淀和能力雷达分析六大核心功能，帮助您告别繁琐的文档整理工作，让报告撰写和职业发展规划变得简单高效。
 
 **核心价值：**
-- 📝 **日报管理**：日历式日报录入，随时记录工作内容，内置 TODO 提醒面板
+- 📝 **日报管理**：日历式日报录入，支持节假日显示，内置 TODO 提醒面板
 - 🤖 **智能周报**：一键从日报生成规范周报，自动分类归纳、去重合并、提取风险点
 - 🎯 **OKR 规划**：基于历史材料智能生成季度 OKR，包含量化指标和里程碑节点
+- 💼 **简历积木**：自动提取 STAR 格式工作成果，积累职业资产
+- 📊 **能力雷达**：技能成长追踪，AI 智能分类，可视化能力分布
+- 📤 **多格式导出**：支持导出为 CSV、Markdown、TXT 格式
 - 💾 **本地存储**：所有数据存储在本地 SQLite 数据库，安全可靠
 - 🚀 **一键部署**：支持 Docker 或本地部署，Windows 用户可使用批处理脚本一键启动
 
-## � 产品展示
+## 📷 产品展示
 
 ### 日报录入界面
 ![日报录入](./screenshots/daily-report-entry.png)
-*日历视图 + TODO Tips 记事板 + 快捷模板*
+*日历视图 + 节假日显示 + TODO Tips 记事板 + 快捷模板 + 多格式导出*
 
 ### 周报生成界面
 ![周报生成](./screenshots/weekly-report-generator.png)
@@ -23,24 +26,34 @@
 
 ### 周报查询界面
 ![周报查询](./screenshots/weekly-report-query.png)
-*历史查询 + 编辑删除功能*
+*历史查询 + 编辑删除 + 多格式导出*
 
 ### OKR 管理界面
 ![OKR管理](./screenshots/okr-generator.png)
-*智能生成 + 量化指标 + 里程碑规划*
+*智能生成 + 量化指标 + 里程碑规划 + 多格式导出*
+
+### 简历积木界面
+![简历积木](./screenshots/career-assets.png)
+*STAR 格式提取 + 项目时间线 + 职业资产管理*
+
+### 能力雷达界面
+![能力雷达](./screenshots/skills-radar.png)
+*技能分布可视化 + AI 智能分类 + 技能详情查看*
 
 > 💡 **提示**：如需添加截图，请将图片文件放置在 `screenshots/` 目录下。详见 [screenshots/README.md](./screenshots/README.md)
 
-## �📋 功能特性
+## 📋 功能特性
 
 ### 📅 日报录入
 - **日历视图**：大日历界面，点击日期直接录入日报
+- **节假日显示**：日历中显示中国传统节日和国际节日（春节、中秋、国庆、圣诞等）
 - **周末标识**：周六周日红色字体显示
 - **数据持久化**：日报自动保存到本地 SQLite 数据库
 - **快捷模板**：支持插入日报模板，快速填写
 - **状态标识**：已录入日期绿色标记，一目了然
 - **统计功能**：显示本月和总计录入数量
 - **TODO Tips**：左侧悬浮记事板，可添加/勾选/删除 TODO 项
+- **多格式导出**：支持导出当前日报或全部日报为 CSV/Markdown/TXT 格式
 
 ### 📋 周报生成
 - **自动周报生成**：从文本日报（单天或整周拼接）生成固定结构的周报邮件正文
@@ -56,6 +69,7 @@
 - **历史查询**：按日期范围查询历史周报
 - **编辑功能**：可编辑已保存的周报
 - **删除功能**：可删除不需要的周报记录
+- **多格式导出**：支持导出为 CSV/Markdown/TXT 格式
 
 ### 🎯 OKR 管理
 - **智能 OKR 生成**：结合历史材料生成下一季度 OKR
@@ -64,11 +78,26 @@
 - **里程碑规划**：关键 KR 包含阶段里程碑（M1/M2/M3）
 - **目标管理**：生成 2-3 个合理目标
 - **保存 OKR**：生成的 OKR 可保存到数据库
+- **多格式导出**：支持导出为 CSV/Markdown/TXT 格式
 
-### 💾 数据存储
+### � 简历积木（职业资产管理）
+- **STAR 格式提取**：从日报/周报中智能提取 Situation-Task-Action-Result 格式的工作成果
+- **项目归类**：自动识别和归类项目
+- **时间线视图**：按时间顺序展示职业成果
+- **成果编辑**：支持编辑 STAR 摘要，完善职业资产
+- **数据清理**：支持合并相似项目、清理无效数据
+
+### 📊 能力雷达
+- **技能分布可视化**：雷达图展示技能使用频率
+- **AI 智能分类**：使用 LLM 智能识别技能类别（技术技能/软技能/业务领域）
+- **分类筛选**：按技能类别筛选查看
+- **技能详情**：点击技能查看相关工作条目
+- **成长追踪**：记录技能首次使用和最近使用时间
+
+### �💾 数据存储
 - 使用 SQLite 轻量级数据库
 - 数据文件位置：`backend/data/reports.db`
-- 四张表：日报(daily_reports)、周报(weekly_reports)、OKR(okr_reports)、TODO(todo_items)
+- 数据表：日报、周报、OKR、TODO、工作项、项目、技能等
 
 ## 🛠️ 技术栈
 
@@ -85,8 +114,8 @@
 
 1. 克隆项目并安装依赖
 ```bash
-git clone https://github.com/steven140811/Weekly-Report-and-OKR-Assistant.git
-cd Weekly-Report-and-OKR-Assistant
+git clone https://github.com/steven140811/WorkPilot.git
+cd WorkPilot
 
 # 安装后端依赖
 cd backend
@@ -157,7 +186,7 @@ npm start
 ## 📁 项目结构
 
 ```
-Weekly-Report-and-OKR-Assistant/
+WorkPilot/
 ├── backend/                 # 后端 Flask 应用
 │   ├── app.py              # 主应用入口
 │   ├── config.py           # 配置管理
@@ -174,15 +203,17 @@ Weekly-Report-and-OKR-Assistant/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── DailyReportEntry.tsx      # 日报录入组件
-│   │   │   ├── DailyReportEntry.css
 │   │   │   ├── WeeklyReportGenerator.tsx # 周报生成组件
-│   │   │   ├── WeeklyReportGenerator.css
 │   │   │   ├── WeeklyReportQuery.tsx     # 周报查询组件
-│   │   │   ├── WeeklyReportQuery.css
 │   │   │   ├── OKRGenerator.tsx          # OKR 生成组件
-│   │   │   └── OKRGenerator.css
+│   │   │   ├── CareerAssets.tsx          # 简历积木组件
+│   │   │   ├── SkillsRadar.tsx           # 能力雷达组件
+│   │   │   └── ExportButton.tsx          # 导出按钮组件
 │   │   ├── services/
 │   │   │   └── api.ts      # API 服务层
+│   │   ├── utils/
+│   │   │   ├── holidays.ts # 节假日数据
+│   │   │   └── export.ts   # 导出工具函数
 │   │   └── App.tsx         # 主应用组件
 │   └── package.json
 ├── docker-compose.yml      # Docker 编排文件

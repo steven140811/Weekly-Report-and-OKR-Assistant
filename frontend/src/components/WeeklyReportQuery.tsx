@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiService, { WeeklyReport } from '../services/api';
+import { ExportFormat, exportWeeklyReport } from '../utils/export';
+import ExportButton from './ExportButton';
 import './WeeklyReportQuery.css';
 
 const WeeklyReportQuery: React.FC = () => {
@@ -249,6 +251,14 @@ const WeeklyReportQuery: React.FC = () => {
               </span>
             </h3>
             <div className="editor-actions">
+              <ExportButton 
+                onExport={(format) => exportWeeklyReport(
+                  editingReport.start_date,
+                  editingReport.end_date,
+                  editContent,
+                  format
+                )}
+              />
               <button className="btn btn-secondary" onClick={handleCopy}>
                 复制
               </button>

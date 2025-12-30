@@ -256,12 +256,31 @@
   font-weight: bold;
   font-size: 14px;
   color: #333;
+}
+
+/* Day header with date and holiday */
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 5px;
 }
 
 /* Weekend day numbers */
 .calendar-day.weekend .day-number {
   color: #ff4d4f;
+}
+
+/* Holiday styling */
+.day-holiday {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.holiday-emoji {
+  font-size: 12px;
 }
 
 .day-indicator {

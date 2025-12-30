@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import apiService, { TodoItem } from '../services/api';
+import { getHoliday, Holiday } from '../utils/holidays';
+import { ExportFormat, exportDailyReports } from '../utils/export';
+import ExportButton from './ExportButton';
 import './DailyReportEntry.css';
 
 interface DailyReportEntryProps {}
@@ -398,14 +401,23 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
             const hasReport = reportDates.includes(dateStr);
             const dayOfWeek = dateObj.getDay();
             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            const holiday = getHoliday(dateObj);
 
             return (
               <div
                 key={dateStr}
-                className={`calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${hasReport ? 'has-report' : ''} ${isWeekend ? 'weekend' : ''}`}
+                className={`calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${hasReport ? 'has-report' : ''} ${isWeekend ? 'weekend' : ''} ${holiday ? 'has-holiday' : ''}`}
                 onClick={() => handleDateSelect(dateStr)}
+                title={holiday ? holiday.name : undefined}
               >
-                <div className="day-number">{day}</div>
+                <div className="day-header">
+                  <div className="day-number">{day}</div>
+                  {holiday && (
+                    <div className="day-holiday" title={holiday.name}>
+                      <span className="holiday-emoji">{holiday.emoji}</span>
+                    </div>
+                  )}
+                </div>
                 {hasReport && (
                   <>
                     <div className="day-indicator">✓</div>
@@ -433,6 +445,27 @@ const DailyReportEntry: React.FC<DailyReportEntryProps> = () => {
               <button className="btn btn-secondary template-btn" onClick={insertTemplate}>
                 插入模板
               </button>
+              {content.trim() && (
+                <ExportButton 
+                  label="导出当前"
+                  onExport={(format) => exportDailyReports(
+                    [{ date: selectedDate, content }],
+                    format,
+                    `daily_report_${selectedDate}`
+                  )}
+                />
+              )}
+              {reportDates.length > 0 && (
+                <ExportButton 
+                  label="导出全部"
+                  onExport={(format) => {
+                    const reports = reportDates
+                      .filter(d => reportCache[d])
+                      .map(d => ({ date: d, content: reportCache[d] }));
+                    exportDailyReports(reports, format, 'all_daily_reports');
+                  }}
+                />
+              )}
               {reportDates.includes(selectedDate) && (
                 <button className="btn btn-danger" onClick={handleDelete}>
                   删除

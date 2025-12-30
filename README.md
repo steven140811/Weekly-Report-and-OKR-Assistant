@@ -1,13 +1,16 @@
-# Weekly Report and OKR Assistant
+# WorkPilot - Productivity Assistant
 
 [中文文档](README_CN.md) | English
 
-An AI-powered intelligent work report assistant designed to boost workplace efficiency. With three core features - daily report accumulation, intelligent weekly report generation, and OKR goal management - it helps you say goodbye to tedious document organization and makes report writing simple and efficient.
+An AI-powered intelligent productivity assistant designed to boost workplace efficiency. With six core features - daily report management, intelligent weekly report generation, OKR goal planning, career asset accumulation, and skills radar analysis - it helps you say goodbye to tedious document organization and makes report writing and career development planning simple and efficient.
 
 **Core Value:**
-- 📝 **Daily Management**: Calendar-style daily report entry, record work anytime, built-in TODO reminder panel
+- 📝 **Daily Management**: Calendar-style daily report entry with holiday display, built-in TODO reminder panel
 - 🤖 **Smart Weekly Reports**: One-click generation of standardized weekly reports from daily entries, auto-categorize, deduplicate, and extract risks
 - 🎯 **OKR Planning**: Intelligently generate quarterly OKRs based on historical materials, with quantitative metrics and milestone nodes
+- 💼 **Career Assets**: Auto-extract STAR-format work achievements, accumulate career assets
+- 📊 **Skills Radar**: Track skill growth, AI-powered categorization, visualize capability distribution
+- 📤 **Multi-format Export**: Support export to CSV, Markdown, TXT formats
 - 💾 **Local Storage**: All data stored in local SQLite database, secure and reliable
 - 🚀 **One-Click Deployment**: Support Docker or local deployment, Windows users can use batch scripts for one-click start
 
@@ -15,7 +18,7 @@ An AI-powered intelligent work report assistant designed to boost workplace effi
 
 ### Daily Report Entry
 ![Daily Report Entry](./screenshots/daily-report-entry.png)
-*Calendar View + TODO Tips Panel + Quick Template*
+*Calendar View + Holiday Display + TODO Tips Panel + Quick Template + Multi-format Export*
 
 ### Weekly Report Generator
 ![Weekly Report Generator](./screenshots/weekly-report-generator.png)
@@ -23,11 +26,19 @@ An AI-powered intelligent work report assistant designed to boost workplace effi
 
 ### Weekly Report Query
 ![Weekly Report Query](./screenshots/weekly-report-query.png)
-*History Query + Edit/Delete Functions*
+*History Query + Edit/Delete Functions + Multi-format Export*
 
 ### OKR Management
 ![OKR Management](./screenshots/okr-generator.png)
-*Smart Generation + Quantitative Metrics + Milestone Planning*
+*Smart Generation + Quantitative Metrics + Milestone Planning + Multi-format Export*
+
+### Career Assets
+![Career Assets](./screenshots/career-assets.png)
+*STAR Format Extraction + Project Timeline + Career Asset Management*
+
+### Skills Radar
+![Skills Radar](./screenshots/skills-radar.png)
+*Skills Distribution Visualization + AI Categorization + Skill Details View*
 
 > 💡 **Tip**: To add screenshots, place image files in the `screenshots/` directory. See [screenshots/README.md](./screenshots/README.md) for details.
 
@@ -35,12 +46,14 @@ An AI-powered intelligent work report assistant designed to boost workplace effi
 
 ### 📅 Daily Report Entry
 - **Calendar View**: Large calendar interface, click on a date to directly enter daily report
+- **Holiday Display**: Calendar shows Chinese traditional holidays and international holidays (Spring Festival, Mid-Autumn, National Day, Christmas, etc.)
 - **Weekend Indicator**: Saturdays and Sundays displayed in red text
 - **Data Persistence**: Daily reports automatically saved to local SQLite database
 - **Quick Template**: Support inserting daily report template for quick filling
 - **Status Indicator**: Recorded dates marked in green for clear visibility
 - **Statistics**: Display monthly and total entry counts
 - **TODO Tips**: Left-side floating note panel, can add/check/delete TODO items
+- **Multi-format Export**: Export current or all daily reports to CSV/Markdown/TXT format
 
 ### 📋 Weekly Report Generation
 - **Automatic Generation**: Generate standardized weekly report email format from text daily reports
@@ -52,10 +65,11 @@ An AI-powered intelligent work report assistant designed to boost workplace effi
 - **Risk Analysis**: Extract risk points and provide response suggestions
 - **Save Report**: Generated reports can be saved to database
 
-### � Weekly Report Query
+### 🔍 Weekly Report Query
 - **History Query**: Query historical weekly reports by date range
 - **Edit Function**: Can edit saved weekly reports
 - **Delete Function**: Can delete unwanted weekly report records
+- **Multi-format Export**: Export to CSV/Markdown/TXT format
 
 ### 🎯 OKR Management
 - **Smart Generation**: Generate next quarter OKR based on historical materials
@@ -64,11 +78,26 @@ An AI-powered intelligent work report assistant designed to boost workplace effi
 - **Milestone Planning**: Key KRs contain phase milestones (M1/M2/M3)
 - **Goal Management**: Generate 2-3 reasonable objectives
 - **Save OKR**: Generated OKRs can be saved to database
+- **Multi-format Export**: Export to CSV/Markdown/TXT format
 
-### � Data Storage
+### 💼 Career Assets (Resume Building Blocks)
+- **STAR Format Extraction**: Intelligently extract Situation-Task-Action-Result format achievements from daily/weekly reports
+- **Project Classification**: Auto-identify and categorize projects
+- **Timeline View**: Display career achievements in chronological order
+- **Achievement Editing**: Support editing STAR summaries to improve career assets
+- **Data Cleanup**: Support merging similar projects and cleaning invalid data
+
+### 📊 Skills Radar
+- **Skills Distribution Visualization**: Radar chart showing skill usage frequency
+- **AI Smart Categorization**: Use LLM to intelligently identify skill categories (Technical/Soft/Domain)
+- **Category Filtering**: Filter and view by skill category
+- **Skill Details**: Click on skills to view related work items
+- **Growth Tracking**: Record first and last use time for each skill
+
+### 💾 Data Storage
 - Use SQLite lightweight database
 - Database file location: `backend/data/reports.db`
-- Four tables: daily_reports, weekly_reports, okr_reports, todo_items
+- Tables: daily_reports, weekly_reports, okr_reports, todo_items, work_items, projects, skills, etc.
 
 ## 🛠️ Technology Stack
 
@@ -85,8 +114,8 @@ An AI-powered intelligent work report assistant designed to boost workplace effi
 
 1. Clone project and install dependencies
 ```bash
-git clone https://github.com/steven140811/Weekly-Report-and-OKR-Assistant.git
-cd Weekly-Report-and-OKR-Assistant
+git clone https://github.com/steven140811/WorkPilot.git
+cd WorkPilot
 
 # Install backend dependencies
 cd backend
@@ -157,7 +186,7 @@ npm start
 ## 📁 Project Structure
 
 ```
-Weekly-Report-and-OKR-Assistant/
+WorkPilot/
 ├── backend/                 # Flask backend application
 │   ├── app.py              # Main application entry
 │   ├── config.py           # Configuration management
@@ -174,15 +203,17 @@ Weekly-Report-and-OKR-Assistant/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── DailyReportEntry.tsx      # Daily report entry component
-│   │   │   ├── DailyReportEntry.css
 │   │   │   ├── WeeklyReportGenerator.tsx # Weekly report generator component
-│   │   │   ├── WeeklyReportGenerator.css
 │   │   │   ├── WeeklyReportQuery.tsx     # Weekly report query component
-│   │   │   ├── WeeklyReportQuery.css
 │   │   │   ├── OKRGenerator.tsx          # OKR generator component
-│   │   │   └── OKRGenerator.css
+│   │   │   ├── CareerAssets.tsx          # Career assets component
+│   │   │   ├── SkillsRadar.tsx           # Skills radar component
+│   │   │   └── ExportButton.tsx          # Export button component
 │   │   ├── services/
 │   │   │   └── api.ts      # API service layer
+│   │   ├── utils/
+│   │   │   ├── holidays.ts # Holiday data
+│   │   │   └── export.ts   # Export utility functions
 │   │   └── App.tsx         # Main application component
 │   └── package.json
 ├── docker-compose.yml      # Docker compose file
