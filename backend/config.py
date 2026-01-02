@@ -51,6 +51,11 @@ class Config:
     LLM_RETRY = int(os.getenv('LLM_RETRY', '2'))
     LLM_TEMPERATURE = 0  # Fixed per spec
     
+    # DeepSeek API Configuration (optional, for direct DeepSeek integration)
+    DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', '').strip()
+    DEEPSEEK_BASE_URL = os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com').strip()
+    DEEPSEEK_MODEL = os.getenv('DEEPSEEK_MODEL', 'deepseek-chat').strip()
+    
     # Application Configuration
     MAX_INPUT_CHARS = 20000  # Fixed per spec
     WEEK_MODE = 'current_week'  # Fixed per spec
@@ -76,17 +81,31 @@ class Config:
                 'model': db_config.get('model', cls.LLM_MODEL),
                 'timeout': cls.LLM_TIMEOUT,
                 'retry': cls.LLM_RETRY,
-                'temperature': cls.LLM_TEMPERATURE
+                'temperature': cls.LLM_TEMPERATURE,
+                'use_deepseek': False
             }
         
-        # 回退到环境变量配置
+        # 检查是否配置了 DeepSeek API
+        if cls.DEEPSEEK_API_KEY:
+            return {
+                'api_url': cls.DEEPSEEK_BASE_URL,
+                'api_key': cls.DEEPSEEK_API_KEY,
+                'model': cls.DEEPSEEK_MODEL,
+                'timeout': cls.LLM_TIMEOUT,
+                'retry': cls.LLM_RETRY,
+                'temperature': cls.LLM_TEMPERATURE,
+                'use_deepseek': True
+            }
+        
+        # 回退到通用 LLM 配置
         return {
             'api_url': cls.LLM_API_URL,
             'api_key': cls.LLM_API_KEY,
             'model': cls.LLM_MODEL,
             'timeout': cls.LLM_TIMEOUT,
             'retry': cls.LLM_RETRY,
-            'temperature': cls.LLM_TEMPERATURE
+            'temperature': cls.LLM_TEMPERATURE,
+            'use_deepseek': False
         }
     
     @classmethod
@@ -97,5 +116,9 @@ class Config:
         if db_config and db_config.get('api_url') and db_config.get('api_key'):
             return True
         
-        # 回退到环境变量配置
+        # 检查 DeepSeek API 配置
+        if cls.DEEPSEEK_API_KEY:
+            return True
+        
+        # 回退到通用 LLM 配置
         return bool(cls.LLM_API_URL and cls.LLM_API_KEY)

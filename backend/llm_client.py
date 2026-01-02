@@ -10,6 +10,12 @@ import requests
 from typing import Optional, Dict, Any
 from config import Config
 
+try:
+    from openai import OpenAI
+    HAS_OPENAI = True
+except ImportError:
+    HAS_OPENAI = False
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -31,6 +37,20 @@ class LLMClient:
         self.timeout = self.config.get('timeout', 30)
         self.retry = self.config.get('retry', 2)
         self.temperature = self.config.get('temperature', 0)
+        self.use_deepseek = self.config.get('use_deepseek', False)
+        
+        # Initialize DeepSeek client if needed
+        self.deepseek_client = None
+        if self.use_deepseek and HAS_OPENAI:
+            try:
+                self.deepseek_client = OpenAI(
+                    api_key=self.api_key,
+                    base_url=self.api_url
+                )
+                logger.info("Initialized DeepSeek client")
+            except Exception as e:
+                logger.warning(f"Failed to initialize DeepSeek client: {e}")
+                self.use_deepseek = False
     
     def is_configured(self) -> bool:
         """Check if LLM client is properly configured"""
@@ -53,6 +73,10 @@ class LLMClient:
         """
         if not self.is_configured():
             raise RuntimeError('LLM_API_URL or LLM_API_KEY not configured')
+        
+        # Use DeepSeek client if configured
+        if self.use_deepseek and self.deepseek_client:
+            return self._call_deepseek(prompt, system_prompt)
         
         url = f"{self.api_url}/chat/completions"
         
@@ -108,6 +132,51 @@ class LLMClient:
                     time.sleep(wait_time)
         
         raise last_error or Exception("LLM API call failed after all retries")
+    
+    def _call_deepseek(self, prompt: str, system_prompt: Optional[str] = None) -> str:
+        """
+        Call DeepSeek API using OpenAI client library.
+        
+        Args:
+            prompt: User message/prompt
+            system_prompt: Optional system message
+            
+        Returns:
+            DeepSeek response content string
+        """
+        messages = []
+        if system_prompt:
+            messages.append({'role': 'system', 'content': system_prompt})
+        messages.append({'role': 'user', 'content': prompt})
+        
+        last_error = None
+        
+        for attempt in range(self.retry + 1):
+            try:
+                logger.info(f"DeepSeek API call attempt {attempt + 1}/{self.retry + 1}")
+                
+                response = self.deepseek_client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=self.temperature,
+                    stream=False
+                )
+                
+                content = response.choices[0].message.content
+                logger.info(f"DeepSeek API call successful, response length: {len(content)}")
+                return content
+                
+            except Exception as e:
+                last_error = e
+                logger.warning(f"DeepSeek API call attempt {attempt + 1} failed: {e}")
+                
+                if attempt < self.retry:
+                    wait_time = 2 ** attempt
+                    logger.info(f"Retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+        
+        raise last_error or Exception("DeepSeek API call failed after all retries")
+
 
 
 # Mock LLM client for testing/demo without real API
